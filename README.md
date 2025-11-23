@@ -1,46 +1,154 @@
-# Getting Started with Create React App
+# Mentor Portal
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Портал для менторинга сотрудников с системой целей, задач и отзывов.
 
-## Available Scripts
+## Технологии
 
-In the project directory, you can run:
+- **Backend**: .NET 8 Web API, Entity Framework Core, PostgreSQL, JWT Authentication
+- **Frontend**: React 18, TypeScript, React Router, Axios
+- **Database**: PostgreSQL 15+
 
-### `npm start`
+## Требования
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- .NET 8 SDK
+- Node.js 18+ и npm
+- PostgreSQL 15+
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Установка и запуск
 
-### `npm test`
+### Backend
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. Перейдите в директорию backend:
+```bash
+cd backend/MentorPortal.API
+```
 
-### `npm run build`
+2. Настройте строку подключения к базе данных в `appsettings.json`:
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=mentorportal;Username=postgres;Password=postgres"
+  }
+}
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+3. Создайте базу данных PostgreSQL:
+```bash
+createdb mentorportal
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+4. Примените миграции:
+```bash
+dotnet ef database update
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+5. Запустите проект:
+```bash
+dotnet run
+```
 
-### `npm run eject`
+Backend будет доступен по адресу: `http://localhost:5000`
+Swagger UI: `http://localhost:5000/swagger`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Frontend
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1. Перейдите в директорию frontend:
+```bash
+cd frontend
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+2. Установите зависимости:
+```bash
+npm install
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+3. Создайте файл `.env` (опционально, если нужно изменить URL API):
+```env
+REACT_APP_API_URL=http://localhost:5000/api
+```
 
-## Learn More
+4. Запустите проект:
+```bash
+npm start
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Frontend будет доступен по адресу: `http://localhost:3000`
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Использование
+
+1. Зарегистрируйте пользователя (ментор или сотрудник)
+2. Для ментора: создайте связь ментор-сотрудник через базу данных или API
+3. Сотрудник может создавать цели и задачи
+4. Ментор может просматривать и корректировать цели сотрудников
+5. Сотрудники могут оставлять отзывы друг на друга
+6. Ментор видит отзывы на своих сотрудников
+
+## Структура проекта
+
+```
+MentorPortal/
+├── backend/
+│   └── MentorPortal.API/
+│       ├── Controllers/     # API контроллеры
+│       ├── Models/          # Модели данных
+│       ├── DTOs/            # Data Transfer Objects
+│       ├── Services/        # Бизнес-логика
+│       ├── Data/            # DbContext и конфигурация
+│       └── Migrations/      # Миграции базы данных
+└── frontend/
+    └── src/
+        ├── components/     # React компоненты
+        ├── pages/          # Страницы приложения
+        ├── services/       # API клиенты
+        ├── context/        # React контексты
+        └── types/          # TypeScript типы
+```
+
+## API Endpoints
+
+### Аутентификация
+- `POST /api/auth/register` - Регистрация
+- `POST /api/auth/login` - Вход
+
+### Цели
+- `GET /api/goals` - Список целей
+- `GET /api/goals/{id}` - Детали цели
+- `POST /api/goals` - Создание цели
+- `PUT /api/goals/{id}` - Обновление цели
+- `DELETE /api/goals/{id}` - Удаление цели
+
+### Задачи
+- `GET /api/tasks/goals/{goalId}` - Список задач цели
+- `POST /api/tasks/goals/{goalId}` - Создание задачи
+- `PUT /api/tasks/{id}` - Обновление задачи
+- `DELETE /api/tasks/{id}` - Удаление задачи
+
+### Ментор
+- `GET /api/mentors/employees` - Список сотрудников
+- `GET /api/mentors/employees/{employeeId}/goals` - Цели сотрудника
+- `PUT /api/mentors/goals/{id}/approve` - Одобрение цели
+- `PUT /api/mentors/tasks/{id}/approve` - Одобрение задачи
+
+### Отзывы
+- `POST /api/reviews` - Создание отзыва
+- `GET /api/reviews/mentor` - Отзывы для ментора
+- `GET /api/reviews/my` - Мои отзывы
+
+## Настройка связи ментор-сотрудник
+
+Для создания связи между ментором и сотрудником можно использовать SQL:
+
+```sql
+INSERT INTO "MentorEmployees" ("MentorId", "EmployeeId", "CreatedAt")
+VALUES (1, 2, NOW());
+```
+
+Где `MentorId` - ID ментора, `EmployeeId` - ID сотрудника.
+
+## Примечания
+
+- JWT токены действительны 7 дней
+- Пароли хешируются с помощью BCrypt
+- Все API endpoints требуют аутентификации (кроме регистрации и входа)
+- Менторские endpoints требуют роль "Mentor"
+
